@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,8 +34,9 @@
 
         .login-container,
         .table-container,
-        #systemUsageContainer {
-            max-width: 400px;
+        #systemUsageContainer,
+        #welcomeModal {
+            max-width: 600px; /* Increased max-width */
             width: 80%;
             background-color: rgba(255, 255, 255, 0.2);
             padding: 30px;
@@ -48,7 +50,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center; /* Center text content horizontally */
+            text-align: center;
         }
 
         input {
@@ -75,7 +77,8 @@
             margin-top: 20px;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
@@ -85,197 +88,215 @@
             background-color: #f2f2f2;
         }
 
-        #welcomeContainer {
+        #welcomeModal button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 20px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 80px;
+        }
+
+        #welcomeModal {
             display: none;
-        }
-
-        #welcomeMessage {
-            color: #fff;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        #systemUsageContainer p {
-            color: #fff;
-            margin-top: 10px;
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 60px; /* Increased padding */
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 2;
         }
     </style>
 </head>
+
 <body>
 
-<img src="https://morax.669.ink/img" alt="Background Image">
+    <img src="https://morax.669.ink/img" alt="Background Image">
 
-<div class="container">
+    <div class="container">
 
-    <div id="loginContainer" class="login-container">
-        <h2 style="margin-bottom: 20px;">群头衔申请</h2>
-        <form id="loginForm">
-            <label for="uid">输入你的QQ号:</label>
-            <input type="text" id="uid" name="uid" required>
+        <div id="loginContainer" class="login-container">
+            <h2 style="margin-bottom: 20px;">群头衔申请</h2>
+            <form id="loginForm">
+                <label for="uid">输入你的QQ号:</label>
+                <input type="text" id="uid" name="uid" required>
 
-            <label for="username">你想使用的头衔:</label>
-            <input type="text" id="username" name="username" required>
+                <label for="username">你想使用的头衔:</label>
+                <input type="text" id="username" name="username" required>
 
-            <button type="button" onclick="submitForm()">提交</button>
+                <button type="button" onclick="submitForm()">提交</button>
+                <p id="systemUsage"></p>
+            </form>
+        </div>
+
+        <div id="tableContainer" class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>待发放QQ号</th>
+                        <th>头衔</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="systemUsageContainer" class="table-container">
             <p id="systemUsage"></p>
-        </form>
+        </div>
+
+        <div id="welcomeModal">
+            <p>说明:提交后等待即可，若您想要修改信息，点击删除后重新提交即可。头衔将在空闲时统一发放。</p>
+            <p>Written by Morax</p>
+            <button onclick="closeWelcomeModal()">确定</button>
+        </div>
+
+        <div id="welcomeContainer">
+            <p id="welcomeMessage">提交成功，请刷新页面</p>
+            <button onclick="logout()">返回</button>
+        </div>
+
     </div>
 
-    <div id="tableContainer" class="table-container">
-        <table id="dataTable">
-            <thead>
-                <tr>
-                    <th>待发放QQ号</th>
-                    <th>头衔</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Show the welcome modal on page load
+            showWelcomeModal();
 
-    <div id="systemUsageContainer" class="table-container">
-        <p id="systemUsage"></p>
-    </div>
-
-    <div id="welcomeContainer">
-        <p id="welcomeMessage">说明:填写完信息后等待即可，若您想要修改信息，点击删除后重新提交即可。待头衔发放完成之后，您的信息也将会被删除</p>
-        <button onclick="logout()">返回</button>
-    </div>
-
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        updateSystemUsage();
-        fetchDataAndPopulateTable();
-    });
-
-    function updateSystemUsage() {
-        const systemUsageElement = document.getElementById('systemUsage');
-        systemUsageElement.textContent = '加载中，请稍候...';
-
-        fetch('https://morax.669.ink/size')
-            .then(response => response.json())
-            .then(data => {
-                const cpuUsage = data.cpuUsage;
-                const memoryUsage = data.memoryUsage;
-                systemUsageElement.textContent = `后端当前CPU占用: ${cpuUsage}, 内存占用: ${memoryUsage}`;
-            })
-            .catch(error => {
-                console.error('Error fetching system usage:', error);
-                systemUsageElement.textContent = '';
-            });
-    }
-
-    async function fetchDataAndPopulateTable() {
-        try {
-            const response = await fetch('https://morax.669.ink/data');
-            const data = await response.json();
-
-            populateTable(data);
-
-            // Show the system usage container after fetching data
-            document.getElementById('systemUsageContainer').style.display = 'block';
+            // Existing code...
             updateSystemUsage();
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    }
-    // 新增删除函数，用于处理删除按钮点击事件
-async function deleteEntry(uid) {
-    try {
-        const response = await fetch(`https://morax.669.ink/delete/${uid}`, {
-            method: 'DELETE',
+            fetchDataAndPopulateTable();
         });
 
-        const data = await response.json();
-
-        if (data.success) {
-            alert('数据删除成功！');
-            fetchDataAndPopulateTable(); // 刷新表格
-        } else {
-            alert('数据删除失败，可能是后端服务器发生错误。');
+        function showWelcomeModal() {
+            const welcomeModal = document.getElementById('welcomeModal');
+            welcomeModal.style.display = 'block';
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('数据删除失败，可能是后端服务器发生错误。');
-    }
-}
 
+        function closeWelcomeModal() {
+            const welcomeModal = document.getElementById('welcomeModal');
+            welcomeModal.style.display = 'none';
+        }
 
-    function populateTable(data) {
-        const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+        function updateSystemUsage() {
+            const systemUsageElement = document.getElementById('systemUsage');
+            systemUsageElement.textContent = '加载中，请稍候...';
 
-        data.forEach(entry => {
-            const row = tableBody.insertRow();
-            const cell1 = row.insertCell(0);
-            const cell2 = row.insertCell(1);
+            fetch('https://morax.669.ink/size')
+                .then(response => response.json())
+                .then(data => {
+                    const cpuUsage = data.cpuUsage;
+                    const memoryUsage = data.memoryUsage;
+                    systemUsageElement.textContent = `后端当前CPU占用: ${cpuUsage}, 内存占用: ${memoryUsage}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching system usage:', error);
+                    systemUsageElement.textContent = '';
+                });
+        }
 
-            cell1.textContent = entry.uid;
-            cell2.textContent = entry.username;
-        });
-    }
+        async function fetchDataAndPopulateTable() {
+            try {
+                const response = await fetch('https://morax.669.ink/data');
+                const data = await response.json();
 
-    function submitForm() {
-        const uid = document.getElementById('uid').value;
-        const username = document.getElementById('username').value;
+                populateTable(data);
 
-        const systemUsageElement = document.getElementById('systemUsage');
-        systemUsageElement.textContent = '提交中，请稍候...';
+                // Show the system usage container after fetching data
+                document.getElementById('systemUsageContainer').style.display = 'block';
+                updateSystemUsage();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
 
-        fetch('https://morax.669.ink/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ uid, username }),
-        })
-            .then(response => response.json())
-            .then(data => {
+        async function deleteEntry(uid) {
+            try {
+                const response = await fetch(`https://morax.669.ink/delete/${uid}`, {
+                    method: 'DELETE',
+                });
+
+                const data = await response.json();
+
                 if (data.success) {
-                    alert('数据提交成功！');
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('welcomeContainer').style.display = 'block';
-                    updateSystemUsage();
+                    alert('数据删除成功！');
+                    fetchDataAndPopulateTable(); // 刷新表格
                 } else {
+                    alert('数据删除失败，可能是后端服务器发生错误。');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('数据删除失败，可能是后端服务器发生错误。');
+            }
+        }
+
+        function populateTable(data) {
+            const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+
+            data.forEach(entry => {
+                const row = tableBody.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2); // 新增列
+
+                cell1.textContent = entry.uid;
+                cell2.textContent = entry.username;
+
+                // 创建删除按钮
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '删除';
+                deleteButton.addEventListener('click', () => deleteEntry(entry.uid));
+
+                // 将删除按钮添加到新列
+                cell3.appendChild(deleteButton);
+            });
+        }
+
+        function submitForm() {
+            const uid = document.getElementById('uid').value;
+            const username = document.getElementById('username').value;
+
+            const systemUsageElement = document.getElementById('systemUsage');
+            systemUsageElement.textContent = '提交中，请稍候...';
+
+            fetch('https://morax.669.ink/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ uid, username }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('数据提交成功！');
+                        document.getElementById('loginContainer').style.display = 'none';
+                        document.getElementById('welcomeContainer').style.display = 'block';
+                        updateSystemUsage();
+                    } else {
+                        alert('数据提交失败，可能是后端服务器发生错误。');
+                        systemUsageElement.textContent = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     alert('数据提交失败，可能是后端服务器发生错误。');
                     systemUsageElement.textContent = '';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('数据提交失败，可能是后端服务器发生错误。');
-                systemUsageElement.textContent = '';
-            });
-    }
-    function populateTable(data) {
-    const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+                });
+        }
 
-    data.forEach(entry => {
-        const row = tableBody.insertRow();
-        const cell1 = row.insertCell(0);
-        const cell2 = row.insertCell(1);
-        const cell3 = row.insertCell(2); // 新增列
-
-        cell1.textContent = entry.uid;
-        cell2.textContent = entry.username;
-
-        // 创建删除按钮
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = '删除';
-        deleteButton.addEventListener('click', () => deleteEntry(entry.uid));
-
-        // 将删除按钮添加到新列
-        cell3.appendChild(deleteButton);
-    });
-}
-
-    function logout() {
-        document.getElementById('welcomeContainer').style.display = 'none';
-        document.getElementById('loginContainer').style.display = 'block';
-    }
-</script>
+        function logout() {
+            document.getElementById('welcomeContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+        }
+    </script>
 
 </body>
+
 </html>
