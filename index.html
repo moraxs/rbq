@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>群后宫列表</title>
+    <title>群头衔申请</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,12 +108,12 @@
 <div class="container">
 
     <div id="loginContainer" class="login-container">
-        <h2 style="margin-bottom: 20px;">受🥵提交</h2>
+        <h2 style="margin-bottom: 20px;">群头衔申请</h2>
         <form id="loginForm">
-            <label for="uid">输入你认为的受的QQ号:</label>
+            <label for="uid">输入你的QQ号:</label>
             <input type="text" id="uid" name="uid" required>
 
-            <label for="username">你的昵称:</label>
+            <label for="username">你想使用的头衔:</label>
             <input type="text" id="username" name="username" required>
 
             <button type="button" onclick="submitForm()">提交</button>
@@ -139,8 +139,8 @@
     </div>
 
     <div id="welcomeContainer">
-        <p id="welcomeMessage">感谢您的提交，现在群里又多了一名rbq呢</p>
-        <button onclick="logout()">重新提交</button>
+        <p id="welcomeMessage">说明:填写完信息后等待即可，若您想要修改信息，点击删除后重新提交即可。待头衔发放完成之后，您的信息也将会被删除</p>
+        <button onclick="logout()">返回</button>
     </div>
 
 </div>
