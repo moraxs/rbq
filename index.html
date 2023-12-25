@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>群头衔申请</title>
     <style>
-       body {
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
             height: 100vh;
@@ -35,8 +35,9 @@
         .login-container,
         .table-container,
         #systemUsageContainer,
-        #welcomeModal {
-            max-width: 600px; /* Increased max-width */
+        #welcomeModal,
+        .image-container {
+            max-width: 600px;
             width: 80%;
             background-color: rgba(255, 255, 255, 0.2);
             padding: 30px;
@@ -51,6 +52,12 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 20px;
         }
 
         input {
@@ -105,7 +112,7 @@
             left: 50%;
             transform: translateX(-50%);
             background-color: rgba(255, 255, 255, 0.9);
-            padding: 60px; /* Increased padding */
+            padding: 60px;
             border-radius: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             text-align: center;
@@ -157,7 +164,13 @@
             <p>Written by Morax</p>
             <button onclick="closeWelcomeModal()">确定</button>
         </div>
-          <!-- 新容器 -->
+
+        <!-- 新容器 -->
+        <div class="image-container">
+            <a href="https://morax.669.ink/download" target="_blank">
+            <img src="https://img.morax.top/file/3ff4ac3768570049aeda3.png" alt="Image">
+            
+        </div>
 
     </div>
 
@@ -260,42 +273,44 @@
         }
 
         function submitForm() {
-    const uid = document.getElementById('uid').value;
-    const username = document.getElementById('username').value;
+            const uid = document.getElementById('uid').value;
+            const username = document.getElementById('username').value;
 
-    const systemUsageElement = document.getElementById('systemUsageData');
-    systemUsageElement.textContent = '提交中，请稍候...';
+            const systemUsageElement = document.getElementById('systemUsageData');
+            systemUsageElement.textContent = '提交中，请稍候...';
 
-    fetch('https://morax.669.ink/submit', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ uid, username }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('数据提交成功！');
-            fetchDataAndPopulateTable(); // 刷新表格
-            document.getElementById('loginContainer').style.display = 'none';
+            fetch('https://morax.669.ink/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        uid,
+                        username
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('数据提交成功！');
+                        fetchDataAndPopulateTable(); // 刷新表格
+                        document.getElementById('loginContainer').style.display = 'none';
 
-            // 隐藏 welcomeModal
-            document.getElementById('welcomeModal').style.display = 'none';
+                        // 隐藏 welcomeModal
+                        document.getElementById('welcomeModal').style.display = 'none';
 
-            updateSystemUsage();
-        } else {
-            alert('数据提交失败，可能是后端服务器发生错误。');
+                        updateSystemUsage();
+                    } else {
+                        alert('数据提交失败，可能是后端服务器发生错误。');
+                    }
+                    systemUsageElement.textContent = '';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('数据提交失败，可能是后端服务器发生错误。');
+                    systemUsageElement.textContent = '';
+                });
         }
-        systemUsageElement.textContent = '';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('数据提交失败，可能是后端服务器发生错误。');
-        systemUsageElement.textContent = '';
-    });
-}
-
 
         function logout() {
             document.getElementById('welcomeContainer').style.display = 'none';
