@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>群头衔申请</title>
+    <title>账号申请</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -129,12 +129,12 @@
     <div class="container">
 
         <div id="loginContainer" class="login-container">
-            <h2 style="margin-bottom: 20px;">群头衔申请</h2>
+            <h2 style="margin-bottom: 20px;">账号申请</h2>
             <form id="loginForm">
                 <label for="uid">输入你的QQ号:</label>
                 <input type="text" id="uid" name="uid" required>
 
-                <label for="username">你想使用的头衔:</label>
+                <label for="username">想要使用的用户名(请不要使用中文):</label>
                 <input type="text" id="username" name="username" required>
 
                 <button type="button" onclick="submitForm()">提交</button>
@@ -142,25 +142,14 @@
             </form>
         </div>
 
-        <div id="tableContainer" class="table-container">
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th>待发放QQ号</th>
-                        <th>头衔</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        
 
         <div id="systemUsageContainer" class="table-container">
             <p id="systemUsageData"></p>
         </div>
 
         <div id="welcomeModal">
-            <p>说明:提交后等待即可，若您想要修改信息，点击删除后重新提交即可。头衔将在空闲时统一发放。</p>
+            <p>说明:提交后请耐心等待审核。服务器是免费的，开启账号验证防倒卖狗</p>
             <p>Written by Morax</p>
             <button onclick="closeWelcomeModal()">确定</button>
         </div>
