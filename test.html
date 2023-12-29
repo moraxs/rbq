@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>群rbq列表</title>
+    <title>群头衔申请</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 0;
             margin: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            overflow: auto;
         }
 
         img {
@@ -32,12 +29,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 20px;
         }
 
         .login-container,
         .table-container,
-        .avatar-container {
-            max-width: 400px;
+        #systemUsageContainer,
+        #welcomeModal,
+        .image-container {
+            max-width: 600px;
             width: 80%;
             background-color: rgba(255, 255, 255, 0.2);
             padding: 30px;
@@ -47,6 +47,17 @@
             z-index: 1;
             position: relative;
             margin-top: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 20px;
         }
 
         input {
@@ -73,7 +84,8 @@
             margin-top: 20px;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
@@ -83,117 +95,161 @@
             background-color: #f2f2f2;
         }
 
-        #welcomeContainer {
-            display: none;
-        }
-
-        #welcomeMessage {
+        #welcomeModal button {
+            background-color: #4caf50;
             color: #fff;
-            font-size: 24px;
-            margin-bottom: 20px;
+            padding: 20px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 80px;
         }
 
-        #avatarContainer {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 20px;
+        #welcomeModal {
+            display: none;
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 2;
         }
 
-        #avatarContainer img {
-            width: 100px; /* Adjust the width as needed */
-            border-radius: 50%;
-            margin: 5px;
-        }
     </style>
 </head>
+
 <body>
 
-<img src="1.jpeg" alt="Background Image">
+    <img src="https://morax.669.ink/img" alt="Background Image">
 
-<div class="container">
+    <div class="container">
 
-    <div id="loginContainer" class="login-container">
-        <h2>rbq提交</h2>
-        <form id="loginForm">
-            <label for="uid">输入你认为的群rbq的QQ号:</label>
-            <input type="text" id="uid" name="uid" required>
+        <div id="loginContainer" class="login-container">
+            <h2 style="margin-bottom: 20px;">群头衔申请</h2>
+            <form id="loginForm">
+                <label for="uid">输入你的QQ号:</label>
+                <input type="text" id="uid" name="uid" required>
 
-            <label for="username">你的昵称:</label>
-            <input type="text" id="username" name="username" required>
+                <label for="username">你想使用的头衔:</label>
+                <input type="text" id="username" name="username" required>
 
-            <button type="button" onclick="submitForm()">提交</button>
-        </form>
+                <button type="button" onclick="submitForm()">提交</button>
+                <p id="systemUsage"></p>
+            </form>
+        </div>
+
+        <div id="tableContainer" class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>待发放QQ号</th>
+                        <th>头衔</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="systemUsageContainer" class="table-container">
+            <p id="systemUsageData"></p>
+        </div>
+
+        <div id="welcomeModal">
+            <p>说明:提交后等待即可，若您想要修改信息，点击删除后重新提交即可。头衔将在空闲时统一发放。</p>
+            <p>Written by Morax</p>
+            <button onclick="closeWelcomeModal()">确定</button>
+        </div>
+
+        <!-- 新容器 -->
+        <div class="image-container">
+            <a href="https://morax.669.ink/download" target="_blank">
+            <img src="https://img.morax.top/file/3ff4ac3768570049aeda3.png" alt="Image">
+            
+        </div>
+
     </div>
 
-    <div id="tableContainer" class="table-container">
-        <table id="dataTable">
-            <thead>
-                <tr>
-                    <th>UID</th>
-                    <th>Username</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Show the welcome modal on page load
+            showWelcomeModal();
 
-    <div id="avatarContainer" class="avatar-container"></div>
-
-    <div id="welcomeContainer">
-        <p id="welcomeMessage">感谢您的提交，现在群里又多了一名rbq呢</p>
-        <button onclick="logout()">重新提交</button>
-    </div>
-
-</div>
-
-<script>
-    // Function to fetch avatars and display them
-    function fetchAvatars() {
-        const avatarContainer = document.getElementById('avatarContainer');
-        const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
-
-        // Get all UIDs from the table
-        const uids = Array.from(tableBody.getElementsByTagName('tr')).map(row => row.cells[0].textContent);
-
-        // Use Promise.all to wait for all avatar fetch requests
-        Promise.all(uids.map(uid => fetchAvatar(uid)))
-            .then(avatars => {
-                avatarContainer.innerHTML = ''; // Clear previous avatars
-                avatars.forEach(avatar => {
-                    avatarContainer.appendChild(avatar);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching avatars:', error);
-            });
-    }
-
-    // Function to fetch a single avatar
-    function fetchAvatar(uid) {
-        return new Promise((resolve, reject) => {
-            const avatarImage = new Image();
-            avatarImage.onload = () => resolve(avatarImage);
-            avatarImage.onerror = reject;
-            avatarImage.src = `https://q1.qlogo.cn/g?b=qq&nk=${uid}&s=100`;
+            // Existing code...
+            updateSystemUsage();
+            fetchDataAndPopulateTable();
         });
-    }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Function to fetch data and populate the table
+        function showWelcomeModal() {
+            const welcomeModal = document.getElementById('welcomeModal');
+            welcomeModal.style.display = 'block';
+        }
+
+        function closeWelcomeModal() {
+            const welcomeModal = document.getElementById('welcomeModal');
+            welcomeModal.style.display = 'none';
+        }
+
+        function updateSystemUsage() {
+            const systemUsageElement = document.getElementById('systemUsageData');
+            systemUsageElement.textContent = '加载中，请稍候...';
+
+            fetch('https://morax.669.ink/size')
+                .then(response => response.json())
+                .then(data => {
+                    const cpuUsage = data.cpuUsage;
+                    const memoryUsage = data.memoryUsage;
+                    systemUsageElement.textContent = `后端当前内存占用: ${memoryUsage}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching system usage:', error);
+                    systemUsageElement.textContent = '';
+                });
+        }
+
         async function fetchDataAndPopulateTable() {
             try {
-                const response = await fetch('http://123.249.82.206:3003/data');
+                const response = await fetch('https://morax.669.ink/data');
                 const data = await response.json();
 
+                // 清空表格内容
+                document.getElementById('dataTable').getElementsByTagName('tbody')[0].innerHTML = '';
+
+                // 添加新数据
                 populateTable(data);
-                fetchAvatars(); // Fetch and display avatars after populating the table
+
+                // Show the system usage container after fetching data
+                document.getElementById('systemUsageContainer').style.display = 'block';
+                updateSystemUsage();
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         }
 
-        // Function to populate the table with data
+        async function deleteEntry(uid) {
+            try {
+                const response = await fetch(`https://morax.669.ink/delete/${uid}`, {
+                    method: 'DELETE',
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('数据删除成功！');
+                    fetchDataAndPopulateTable(); // 刷新表格
+                } else {
+                    alert('数据删除失败，可能是后端服务器发生错误。');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('数据删除失败，可能是后端服务器发生错误。');
+            }
+        }
+
         function populateTable(data) {
             const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
 
@@ -201,49 +257,66 @@
                 const row = tableBody.insertRow();
                 const cell1 = row.insertCell(0);
                 const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2); // 新增列
 
                 cell1.textContent = entry.uid;
                 cell2.textContent = entry.username;
+
+                // 创建删除按钮
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '删除';
+                deleteButton.addEventListener('click', () => deleteEntry(entry.uid));
+
+                // 将删除按钮添加到新列
+                cell3.appendChild(deleteButton);
             });
         }
 
-        // Call the function to fetch data and populate the table
-        fetchDataAndPopulateTable();
-    });
+        function submitForm() {
+            const uid = document.getElementById('uid').value;
+            const username = document.getElementById('username').value;
 
-    function submitForm() {
-        const uid = document.getElementById('uid').value;
-        const username = document.getElementById('username').value;
+            const systemUsageElement = document.getElementById('systemUsageData');
+            systemUsageElement.textContent = '提交中，请稍候...';
 
-        fetch('http://123.249.82.206:3002/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ uid, username }),
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('数据提交成功！');
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('welcomeContainer').style.display = 'block';
-                    fetchAvatars(); // Fetch and display avatars after submitting the form
-                } else {
+            fetch('https://morax.669.ink/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        uid,
+                        username
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('数据提交成功！');
+                        fetchDataAndPopulateTable(); // 刷新表格
+                        document.getElementById('loginContainer').style.display = 'none';
+
+                        // 隐藏 welcomeModal
+                        document.getElementById('welcomeModal').style.display = 'none';
+
+                        updateSystemUsage();
+                    } else {
+                        alert('数据提交失败，可能是后端服务器发生错误。');
+                    }
+                    systemUsageElement.textContent = '';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     alert('数据提交失败，可能是后端服务器发生错误。');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('数据提交失败，可能是后端服务器发生错误。');
-            });
-    }
+                    systemUsageElement.textContent = '';
+                });
+        }
 
-    function logout() {
-        document.getElementById('welcomeContainer').style.display = 'none';
-        document.getElementById('loginContainer').style.display = 'block';
-    }
-</script>
-
+        function logout() {
+            document.getElementById('welcomeContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+        }
+    </script>
 </body>
+
 </html>
